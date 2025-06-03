@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gra: Co byś zrobiła, gdyby...</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#007bff" />
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 2rem;
+    background: #f9f9f9;
+    display: flex;
+    justify-content: center;
+  }
+  #container {
+    background: white;
+    padding: 2rem;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  #question {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    min-height: 6rem;
+  }
+  button {
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+    margin: 0 0.5rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+<div id="container">
+  <div id="question">Kliknij „Losuj pytanie”, żeby zacząć!</div>
+  <button id="drawBtn">Losuj pytanie</button>
+  <button id="resetBtn" disabled>Resetuj</button>
+</div>
+
+<script>
+  const allScenarios = [
+    "Co byś zrobiła, gdybyś obudziła się z tatuażem, którego sobie nie pamiętasz – ale jest piękny?",
+    "Co byś zrobiła, gdyby twój eks napisał ‘chyba wciąż cię kocham’?",
+    "Co byś zrobiła, gdybyś mogła przez jeden dzień być kimkolwiek ze znanych ludzi?",
+    "Co byś zrobiła, gdybyś znalazła list miłosny, który ktoś napisał... ale nigdy ci go nie wysłał?",
+    "Co byś zrobiła, gdybyś mogła zamienić się życiem z kimkolwiek na 24 godziny – kto by to był?",
+    "Co byś zrobiła, gdybyś dostała tajemniczy list z instrukcjami: ‘Nie mów nikomu. Idź do miejsca, które znasz od dziecka…’?",
+    "Co byś zrobiła, gdybyś przypadkiem stała się memem – ale takim kultowym?",
+    "Co byś zrobiła, gdyby twoje sny zaczęły się spełniać – dosłownie – i nie zawsze dobrze?",
+    "Co byś zrobiła, gdybyś przez 24 godziny mogła ‘czytać ludzi’ jak otwartą książkę?",
+    "Co byś zrobiła, gdybyś nagle znalazła się w filmie – dosłownie – i musiała dograć do końca fabułę jako bohaterka?",
+    "Co byś zrobiła, gdybyś wygrała milion złotych, ale nie mogła nikomu o tym powiedzieć?",
+    "Co byś zrobiła, gdybyś przypadkiem przeczytała prywatny dziennik bliskiej osoby?",
+    "Co byś zrobiła, gdybyś dostała możliwość wymazania jednego wspomnienia – ale nie wiesz którego?",
+    "Co byś zrobiła, gdybyś musiała przez tydzień mówić wyłącznie prawdę?",
+    "Co byś zrobiła, gdybyś dowiedziała się, że twoje życie trafi na ekrany jako serial?",
+    "Co byś zrobiła, gdybyś mogła mieć godzinę rozmowy z sobą z przyszłości?",
+    "Co byś zrobiła, gdybyś przez pomyłkę wzięła cudzy telefon i zobaczyła coś dziwnego?",
+    "Co byś zrobiła, gdybyś mogła spędzić jeden dzień jako zwierzę – i które byś wybrała?",
+    "Co byś zrobiła, gdybyś została przypadkiem zamknięta na noc w centrum handlowym?",
+    "Co byś zrobiła, gdybyś nagle zaczęła słyszeć myśli innych ludzi?",
+    "Co byś zrobiła, gdybyś znalazła wiadomość w butelce z bardzo osobistym listem sprzed lat?",
+    "Co byś zrobiła, gdybyś miała żyć przez rok bez telefonu i internetu?",
+    "Co byś zrobiła, gdyby ktoś poprosił cię o udział w tajnym eksperymencie społecznym?",
+    "Co byś zrobiła, gdyby twoja najlepsza przyjaciółka wyznała, że jest zakochana w tej samej osobie co ty?",
+    "Co byś zrobiła, gdybyś musiała wybrać między cofnięciem się w czasie o 10 lat lub skokiem 10 lat do przodu?",
+    "Co byś zrobiła, gdybyś miała możliwość przeżyć jeden dzień z dzieciństwa jeszcze raz?",
+    "Co byś zrobiła, gdybyś znalazła portfel z dużą ilością pieniędzy i bez żadnych danych właściciela?",
+    "Co byś zrobiła, gdybyś przez jeden dzień mogła być totalnie niewidzialna?",
+    "Co byś zrobiła, gdybyś miała żyć przez tydzień jak ktoś zupełnie inny, w obcym mieście, bez wspomnień o swoim życiu?",
+    "Co byś zrobiła, gdybyś nagle dostała zdolność teleportacji, ale tylko raz w życiu?",
+    "Co byś zrobiła, gdybyś dostała propozycję pracy marzeń, ale w kraju, którego języka nie znasz?",
+    "Co byś zrobiła, gdybyś mogła spędzić wieczór z dowolną osobą – żyjącą lub nie?",
+    "Co byś zrobiła, gdybyś musiała podjąć ważną decyzję, mając tylko jedną minutę na zastanowienie?",
+    "Co byś zrobiła, gdybyś mogła zapytać swoje przyszłe „ja” o jedną rzecz – co by to było?",
+    "Co byś zrobiła, gdybyś przypadkiem została gwiazdą wiralowego filmiku w sieci?",
+    "Co byś zrobiła, gdybyś miała możliwość zatrzymać czas na 24 godziny – co byś zrobiła w tym czasie?",
+    "Co byś zrobiła, gdybyś odkryła, że ktoś od lat potajemnie prowadzi dziennik o twoim życiu?",
+    "Co byś zrobiła, gdybyś przez przypadek trafiła na własny profil randkowy... prowadzony przez kogoś innego?",
+    "Co byś zrobiła, gdybyś mogła spełnić jedno życzenie – ale ktoś inny decyduje, które?"
+  ];
+
+  let remaining = [...allScenarios];
+
+  const questionEl = document.getElementById("question");
+  const drawBtn = document.getElementById("drawBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  function drawQuestion() {
+    if (remaining.length === 0) {
+      questionEl.textContent = "Wszystkie pytania zostały wykorzystane! Kliknij „Resetuj”, aby zagrać ponownie.";
+      drawBtn.disabled = true;
+      resetBtn.disabled = false;
+      return;
+    }
+    const index = Math.floor(Math.random() * remaining.length);
+    const question = remaining[index];
+    questionEl.textContent = question;
+    remaining.splice(index, 1);
+    resetBtn.disabled = false;
+  }
+
+  function resetGame() {
+    remaining = [...allScenarios];
+    questionEl.textContent = "Kliknij „Losuj pytanie”, żeby zacząć!";
+    drawBtn.disabled = false;
+    resetBtn.disabled = true;
+  }
+
+  drawBtn.addEventListener("click", drawQuestion);
+  resetBtn.addEventListener("click", resetGame);
+</script>
+</body>
+</html>
